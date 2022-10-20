@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -13,28 +12,42 @@ union ip_addr {
 
 uint32_t str_ip_to_decm(char *);
 
+void decm_ip_to_str(uint32_t, char *);
+
 int main() {
   char str_ip[16] = "192.168.1.1";
   uint32_t decm_ip = str_ip_to_decm(str_ip);
+  char str_ip2[16];
+  decm_ip_to_str(decm_ip, str_ip2);
   printf("%u\n", decm_ip);
+  printf("%s\n", str_ip2);
 
   return 0;
 }
 
 uint32_t str_ip_to_decm(char *str_ip) {
-  int oct;
   char *token;
   union ip_addr ip;
+  int oct = OCTETS;
 
   memset(&ip, 0, sizeof(union ip_addr));
 
   token = strtok(str_ip, ".");
-  ip.octs[0] = atoi(token);
+  ip.octs[--oct] = atoi(token);
 
-  for (oct = 1; oct <= OCTETS; oct++) {
+  while (oct > 0) {
     token = strtok(NULL, ".");
-    ip.octs[oct] = atoi(token);
+    ip.octs[--oct] = atoi(token);
   }
 
-  return ntohl(ip.decm);
+  return ip.decm;
+}
+
+void decm_ip_to_str(uint32_t decm_ip, char *str_ip) {
+  union ip_addr ip;
+
+  memset(&ip, 0, sizeof(union ip_addr));
+
+  ip.decm = decm_ip;
+  sprintf(str_ip, "%u.%u.%u.%u", ip.octs[3], ip.octs[2], ip.octs[1], ip.octs[0]);
 }
