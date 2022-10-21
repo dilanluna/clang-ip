@@ -10,34 +10,38 @@ union ip_addr {
   uint32_t decm;
 };
 
-uint32_t str_ip_to_decm(char *);
+typedef uint32_t ip_t;
 
-void decm_ip_to_str(uint32_t, char *);
+typedef char strip_t[16];
 
-uint32_t net_ip(uint32_t, uint32_t);
+ip_t str_to_ip(strip_t);
 
-uint32_t brdcst_ip(uint32_t, uint32_t);
+void ip_to_str(ip_t, strip_t);
+
+ip_t get_net_ip(ip_t, ip_t);
+
+ip_t get_brdcst_ip(ip_t, ip_t);
 
 int main() {
-  char str_net[16];
-  char str_brdcst[16];
-  char str_host[16] = "192.168.1.1";
-  char str_mask[16] = "255.255.255.0";
+  strip_t str_net;
+  strip_t str_brdcst;
+  strip_t str_host = "192.168.1.1";
+  strip_t str_mask = "255.255.255.0";
   
-  uint32_t decm_host = str_ip_to_decm(str_host);
-  uint32_t decm_mask = str_ip_to_decm(str_mask);
-  uint32_t decm_net = net_ip(decm_host, decm_mask);
-  uint32_t decm_brdcst = brdcst_ip(decm_host, decm_mask);
+  ip_t host_ip = str_to_ip(str_host);
+  ip_t mask_ip = str_to_ip(str_mask);
+  ip_t net_ip = get_net_ip(host_ip, mask_ip);
+  ip_t brdcst_ip = get_brdcst_ip(host_ip, mask_ip);
   
-  decm_ip_to_str(decm_net, str_net);
-  decm_ip_to_str(decm_brdcst, str_brdcst);
+  ip_to_str(net_ip, str_net);
+  ip_to_str(brdcst_ip, str_brdcst);
   printf("Network IP: %s\n", str_net);
   printf("Broadcast IP: %s\n", str_brdcst);
 
   return 0;
 }
 
-uint32_t str_ip_to_decm(char *str_ip) {
+ip_t str_to_ip(strip_t str_ip) {
   char *token;
   union ip_addr ip;
   int oct = OCTETS;
@@ -55,20 +59,20 @@ uint32_t str_ip_to_decm(char *str_ip) {
   return ip.decm;
 }
 
-void decm_ip_to_str(uint32_t decm_ip, char *str_ip) {
+void ip_to_str(ip_t trg_ip, strip_t str_ip) {
   union ip_addr ip;
 
   memset(&ip, 0, sizeof(union ip_addr));
 
-  ip.decm = decm_ip;
+  ip.decm = trg_ip;
   sprintf(str_ip, "%u.%u.%u.%u", ip.octs[3], ip.octs[2], ip.octs[1], ip.octs[0]);
 }
 
-uint32_t net_ip(uint32_t decm_host, uint32_t decm_mask) {
-  return decm_host & decm_mask;
+ip_t get_net_ip(ip_t host_ip, ip_t mask_ip) {
+  return host_ip & mask_ip;
 }
 
-uint32_t brdcst_ip(uint32_t decm_host, uint32_t decm_mask) {
-	uint32_t decm_brdcst_mask = ~decm_mask;
-	return decm_host | decm_brdcst_mask;
+ip_t get_brdcst_ip(ip_t host_ip, ip_t mask_ip) {
+	ip_t brdcst_mask_ip = ~mask_ip;
+	return host_ip | brdcst_mask_ip;
 }
