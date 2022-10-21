@@ -14,13 +14,20 @@ uint32_t str_ip_to_decm(char *);
 
 void decm_ip_to_str(uint32_t, char *);
 
+uint32_t network_ip(uint32_t, uint32_t);
+
 int main() {
-  char str_ip[16] = "192.168.1.1";
-  uint32_t decm_ip = str_ip_to_decm(str_ip);
-  char str_ip2[16];
-  decm_ip_to_str(decm_ip, str_ip2);
-  printf("%u\n", decm_ip);
-  printf("%s\n", str_ip2);
+  char net[16];
+  char host[16] = "192.168.1.1";
+  char mask[16] = "255.255.255.0";
+  
+  uint32_t decm_host = str_ip_to_decm(host);
+  uint32_t decm_mask = str_ip_to_decm(mask);
+  uint32_t decm_net = network_ip(decm_host, decm_mask);
+  
+  decm_ip_to_str(decm_net, net);
+  printf("%u\n", decm_net);
+  printf("%s\n", net);
 
   return 0;
 }
@@ -50,4 +57,8 @@ void decm_ip_to_str(uint32_t decm_ip, char *str_ip) {
 
   ip.decm = decm_ip;
   sprintf(str_ip, "%u.%u.%u.%u", ip.octs[3], ip.octs[2], ip.octs[1], ip.octs[0]);
+}
+
+uint32_t network_ip(uint32_t decm_host, uint32_t decm_mask) {
+  return decm_host & decm_mask;
 }
