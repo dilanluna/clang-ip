@@ -1,2 +1,7 @@
+CC = gcc
+CFLAGS = -Wall
+SOURCE_FILES = $(wildcard src/*c)
+
 build:
-	gcc main.c -o output/ip
+	$(CC) $(CFLAGS) -I $(CURDIR) -o output/ip $(SOURCE_FILES)
+
